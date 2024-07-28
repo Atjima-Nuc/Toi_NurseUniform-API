@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum sex {
+  Male
+  Female
+}
+
+enum role {
+  USER
+  ADMIN
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique
+  password String 
+  firstName String
+  lastName String
+  email String? @unique
+  phoneNo String 
+  sex sex
+  role role @default(USER)
+
+  shape Body_measurement[]
+ 
+}
+
+model Body_measurement {
+  id Int @id @default(autoincrement())
+  aroundBust Decimal? @db.Decimal(4,1)
+  aroundWaist Decimal? @db.Decimal(4,1)
+  aroundHip Decimal? @db.Decimal(4,1)
+  shoulderWidth  Decimal? @db.Decimal(4,1)
+  Arm Decimal? @db.Decimal(4,1)
+  wrist Decimal? @db.Decimal(4,1)
+  trousersLength Decimal? @db.Decimal(4,1)
+  skirtLength Decimal? @db.Decimal(4,1)
+  thigh Decimal? @db.Decimal(4,1) 
+  armholdDepth Decimal? @db.Decimal(4,1)
+  bustHeight Decimal? @db.Decimal(4,1)
+  backLength Decimal? @db.Decimal(4,1) 
+  crothLength Decimal? @db.Decimal(4,1) 
+  chestWidth Decimal? @db.Decimal(4,1) 
+  backWidth Decimal? @db.Decimal(4,1) 
+  bustSeparation Decimal? @db.Decimal(4,1)
+  hightHip Decimal? @db.Decimal(4,1)
+  shirtLength Decimal? @db.Decimal(4,1)
+  neckToWaist Decimal? @db.Decimal(4,1)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+  userId Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+}
+
+
+
+enum Is_delete {
+  REMAIN
+  DELETE
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  productName String @unique
+  price Decimal @db.Decimal(10,2)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+  isDelete Is_delete @default(REMAIN)
+  
+  order_item Order_items[]
+}
+
+
+
+enum order_status {
+  PENDING
+  PROCESSING
+  FINISHED
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  orderStatus order_status @default(PENDING)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+  shapeId Int
+
+  shape Body_measurement @relation(fields: [shapeId], references: [id])
+  order_item Order_items[]
+}
+
+model Order_items {
+  id Int @id @default(autoincrement())
+  quantity Int @default(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+  orderId Int
+  productId Int
+
+  orders Order @relation(fields: [orderId], references: [id])
+  products Product @relation(fields: [productId], references: [id])
+}
